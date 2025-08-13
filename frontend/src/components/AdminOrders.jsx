@@ -19,7 +19,7 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/admin/orders', {
+      const response = await axios.get('/api/admin/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setOrders(response.data.orders || []);
@@ -30,10 +30,22 @@ const AdminOrders = () => {
     }
   };
 
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      const response = await axios.get(`/api/admin/orders/${orderId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setSelectedOrder(response.data.order);
+      setShowOrderDetails(true);
+    } catch (err) {
+      toast.error('Failed to fetch order details');
+    }
+  };
+
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/admin/orders/${orderId}/status`,
+        `/api/admin/orders/${orderId}/status`,
         { status: newStatus },
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -143,7 +155,7 @@ const AdminOrders = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-[#1b0e0e] font-medium">
-                        ${order.total?.toFixed(2) || '0.00'}
+                        ${(parseFloat(order.total) || 0).toFixed(2)}
                       </td>
                       <td className="py-4 px-6">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOrderStatusColor(order.status)}`}>
@@ -156,10 +168,7 @@ const AdminOrders = () => {
                       <td className="py-4 px-6">
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setShowOrderDetails(true);
-                            }}
+                            onClick={() => fetchOrderDetails(order.id)}
                             className="text-[#ea2a33] hover:text-[#d4252e] font-medium text-sm"
                           >
                             View Details
@@ -228,7 +237,7 @@ const AdminOrders = () => {
                         {selectedOrder.status || 'Pending'}
                       </span>
                     </p>
-                    <p><span className="font-medium">Total Amount:</span> ${selectedOrder.total?.toFixed(2) || '0.00'}</p>
+                    <p><span className="font-medium">Total Amount:</span> ${(parseFloat(selectedOrder.total) || 0).toFixed(2)}</p>
                   </div>
                 </div>
 
@@ -243,7 +252,7 @@ const AdminOrders = () => {
                             <p className="font-medium">{item.product_name}</p>
                             <p className="text-sm text-[#994d51]">Quantity: {item.quantity}</p>
                           </div>
-                          <p className="font-medium">${item.price?.toFixed(2) || '0.00'}</p>
+                          <p className="font-medium">${(parseFloat(item.price) || 0).toFixed(2)}</p>
                         </div>
                       ))}
                     </div>

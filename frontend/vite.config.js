@@ -4,16 +4,13 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/e-commerce/', // Change this to match your repository name
   css: {
     postcss: true,
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
   },
+  // Remove server proxy for production build
 })

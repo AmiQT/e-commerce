@@ -126,7 +126,78 @@ router.get('/orders', adminAuth, async (req, res, next) => {
       ORDER BY o.created_at DESC
     `);
 
-    res.json({ orders: result.rows });
+    // Get order items for each order
+    const ordersWithItems = await Promise.all(
+      result.rows.map(async (order) => {
+        const itemsResult = await pool.query(`
+          SELECT 
+            oi.product_id,
+            oi.quantity,
+            oi.price_at_time as price,
+            p.name as product_name,
+            p.image_url
+          FROM order_items oi
+          JOIN products p ON oi.product_id = p.id
+          WHERE oi.order_id = $1
+        `, [order.id]);
+
+        return {
+          ...order,
+          items: itemsResult.rows
+        };
+      })
+    );
+
+    res.json({ orders: ordersWithItems });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get single order with full details (admin only)
+router.get('/orders/:id', adminAuth, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    // Get order details
+    const orderResult = await pool.query(`
+      SELECT 
+        o.id,
+        o.total_amount as total,
+        o.status,
+        o.created_at,
+        o.shipping_address,
+        u.first_name,
+        u.last_name,
+        u.email as customer_email,
+        CONCAT(u.first_name, ' ', u.last_name) as customer_name
+      FROM orders o
+      LEFT JOIN users u ON o.user_id = u.id
+      WHERE o.id = $1
+    `, [id]);
+
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ msg: 'Order not found' });
+    }
+
+    const order = orderResult.rows[0];
+
+    // Get order items
+    const itemsResult = await pool.query(`
+      SELECT 
+        oi.product_id,
+        oi.quantity,
+        oi.price_at_time as price,
+        p.name as product_name,
+        p.image_url
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      WHERE oi.order_id = $1
+    `, [id]);
+
+    order.items = itemsResult.rows;
+
+    res.json({ order });
   } catch (err) {
     next(err);
   }

@@ -14,7 +14,7 @@ const RelatedProducts = ({ productId, currentProductName }) => {
 
   const fetchRelatedProducts = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/products/${productId}/related`);
+      const response = await axios.get(`/api/products/${productId}/related`);
       setRelatedProducts(response.data);
     } catch (err) {
       console.error('Failed to fetch related products:', err);

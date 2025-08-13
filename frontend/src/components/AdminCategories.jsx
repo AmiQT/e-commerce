@@ -23,7 +23,7 @@ const AdminCategories = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/categories');
+      const response = await axios.get('/api/categories');
       setCategories(response.data);
     } catch (err) {
       toast.error('Failed to fetch categories');
@@ -56,7 +56,7 @@ const AdminCategories = () => {
       if (editingCategory) {
         // Update existing category
         await axios.put(
-          `http://localhost:3001/api/categories/${editingCategory.id}`,
+          `/api/categories/${editingCategory.id}`,
           formData,
           {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -66,7 +66,7 @@ const AdminCategories = () => {
       } else {
         // Add new category
         await axios.post(
-          'http://localhost:3001/api/categories',
+          '/api/categories',
           formData,
           {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -94,7 +94,7 @@ const AdminCategories = () => {
   const handleDelete = async (categoryId) => {
     if (window.confirm('Are you sure you want to delete this category? This will also remove all products in this category.')) {
       try {
-        await axios.delete(`http://localhost:3001/api/categories/${categoryId}`, {
+        await axios.delete(`/api/categories/${categoryId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         toast.success('Category deleted successfully!');

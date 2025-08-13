@@ -14,21 +14,73 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// Get a single product
-router.get('/:id', async (req, res, next) => {
+// Search products - MUST come before /:id route
+router.get('/search', async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ msg: 'Product not found' });
+    const { q, category, minPrice, maxPrice, sortBy, limit } = req.query;
+    
+    let query = 'SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE 1=1';
+    const params = [];
+    let paramCount = 0;
+    
+    if (q) {
+      paramCount++;
+      query += ` AND (p.name ILIKE $${paramCount} OR p.description ILIKE $${paramCount})`;
+      params.push(`%${q}%`);
     }
-    res.json(result.rows[0]);
+    
+    if (category) {
+      paramCount++;
+      query += ` AND p.category_id = $${paramCount}`;
+      params.push(category);
+    }
+    
+    if (minPrice) {
+      paramCount++;
+      query += ` AND p.price >= $${paramCount}`;
+      params.push(minPrice);
+    }
+    
+    if (maxPrice) {
+      paramCount++;
+      query += ` AND p.price <= $${paramCount}`;
+      params.push(maxPrice);
+    }
+    
+    // Add sorting
+    if (sortBy) {
+      switch (sortBy) {
+        case 'price-low':
+          query += ' ORDER BY p.price ASC';
+          break;
+        case 'price-high':
+          query += ' ORDER BY p.price DESC';
+          break;
+        case 'name':
+          query += ' ORDER BY p.name ASC';
+          break;
+        default:
+          query += ' ORDER BY p.name ASC';
+      }
+    } else {
+      query += ' ORDER BY p.name ASC';
+    }
+    
+    // Add limit
+    if (limit) {
+      paramCount++;
+      query += ` LIMIT $${paramCount}`;
+      params.push(parseInt(limit));
+    }
+    
+    const result = await pool.query(query, params);
+    res.json(result.rows);
   } catch (err) {
     next(err);
   }
 });
 
-// Get related products (same category, excluding current product)
+// Get related products (same category, excluding current product) - MUST come before /:id route
 router.get('/:id/related', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -56,6 +108,20 @@ router.get('/:id/related', async (req, res, next) => {
     `, [categoryId, id]);
     
     res.json(relatedResult.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get a single product - MUST come after specific routes
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ msg: 'Product not found' });
+    }
+    res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }

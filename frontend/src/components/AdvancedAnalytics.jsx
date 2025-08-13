@@ -56,7 +56,7 @@ const AdvancedAnalytics = () => {
   const fetchAdvancedAnalytics = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3001/api/analytics/advanced?range=${timeRange}`, {
+      const response = await axios.get(`/api/analytics/advanced?range=${timeRange}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAnalytics(response.data);

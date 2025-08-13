@@ -4,9 +4,9 @@ const pool = require('../db');
 const { auth } = require('../middleware/auth');
 
 // Get user's shopping cart
-router.get('/:userId', auth, async (req, res, next) => {
+router.get('/', auth, async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
     const result = await pool.query(`
       SELECT sc.*, p.name, p.price, p.image_url, p.stock 
       FROM shopping_cart sc 

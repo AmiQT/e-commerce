@@ -9,28 +9,21 @@ const { auth } = require('../middleware/auth');
 
 // Register a new user
 router.post('/register', validateRegistration, async (req, res, next) => {
-  console.log('Register Request Body:', req.body);
   try {
     const { email, password, first_name, last_name } = req.body;
     
-    console.log('Checking for existing user...');
     const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
-      console.log('User already exists:', existingUser.rows[0]);
       return res.status(400).json({ msg: 'User already exists' });
     }
     
-    console.log('Hashing password...');
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
-    console.log('Password Hashed:', password_hash);
     
-    console.log('Inserting new user into DB...');
     const newUser = await pool.query(
       'INSERT INTO users (email, password_hash, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING id, email, first_name, last_name',
       [email, password_hash, first_name, last_name]
     );
-    console.log('New user inserted:', newUser.rows[0]);
     
     // Generate JWT token
     const payload = {
@@ -53,7 +46,6 @@ router.post('/register', validateRegistration, async (req, res, next) => {
 
 // Login user
 router.post('/login', validateLogin, async (req, res, next) => {
-  console.log('Login Request Body:', req.body);
   try {
     const { email, password } = req.body;
     

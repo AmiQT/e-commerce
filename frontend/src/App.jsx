@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Context
 import { UserProvider, useUser } from './context/UserContext';
+import { CartProvider } from './context/CartContext';
 
 // Components
 import Navbar from './components/Navbar';
@@ -12,6 +13,8 @@ import Home from './components/Home';
 import Products from './components/Products';
 import ProductDetail from './components/ProductDetail';
 import Cart from './components/Cart';
+import Wishlist from './components/Wishlist';
+import Orders from './components/Orders';
 import Login from './components/Login';
 import Register from './components/Register';
 import UserProfile from './components/UserProfile';
@@ -25,6 +28,7 @@ import PerformanceMonitor from './components/PerformanceMonitor';
 import AIRecommendations from './components/AIRecommendations';
 import AIChatbot from './components/AIChatbot';
 import Internationalization from './components/Internationalization';
+import AdminOrders from './components/AdminOrders';
 
 // Main App Component
 const AppContent = () => {
@@ -51,17 +55,21 @@ const AppContent = () => {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <main className="pt-16">
+        <main>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+            <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+            <Route path="/checkout" element={<ProtectedRoute><EnhancedCheckout /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AnalyticsDashboard /></ProtectedRoute>} />
+            <Route path="/admin/orders" element={<ProtectedRoute requireAdmin><AdminOrders /></ProtectedRoute>} />
             <Route path="/enhanced-checkout" element={<ProtectedRoute><EnhancedCheckout /></ProtectedRoute>} />
             <Route path="/preferences" element={<ProtectedRoute><UserPreferences /></ProtectedRoute>} />
             <Route path="/admin/advanced-analytics" element={<ProtectedRoute requireAdmin><AdvancedAnalytics /></ProtectedRoute>} />
@@ -82,7 +90,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <UserProvider>
-      <AppContent />
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
     </UserProvider>
   );
 };

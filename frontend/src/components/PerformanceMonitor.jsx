@@ -48,7 +48,7 @@ const PerformanceMonitor = () => {
 
   const fetchPerformanceData = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/performance/metrics', {
+      const response = await axios.get('/api/performance/metrics', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setPerformanceData(response.data);

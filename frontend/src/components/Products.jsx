@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
+import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 import AdvancedSearch from './AdvancedSearch';
 
 const Products = () => {
@@ -13,6 +15,7 @@ const Products = () => {
   const [sortBy, setSortBy] = useState('name');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const { user, addToWishlist, removeFromWishlist, wishlist } = useUser();
+  const { addToCart } = useCart();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -269,7 +272,13 @@ const Products = () => {
                       View Details
                     </Link>
                     {product.stock > 0 && (
-                      <button className="flex-1 bg-gray-100 text-[#1b0e0e] py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                      <button 
+                        onClick={() => {
+                          addToCart(product);
+                          toast.success(`${product.name} added to cart!`);
+                        }}
+                        className="flex-1 bg-gray-100 text-[#1b0e0e] py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                      >
                         Add to Cart
                       </button>
                     )}

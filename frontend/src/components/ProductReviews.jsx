@@ -24,7 +24,7 @@ const ProductReviews = ({ productId, productName }) => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/reviews/product/${productId}`);
+      const response = await axios.get(`/api/reviews/product/${productId}`);
       setReviews(response.data.reviews);
       setStats(response.data.stats);
     } catch (err) {
@@ -38,7 +38,7 @@ const ProductReviews = ({ productId, productName }) => {
     if (!user || !token) return;
     
     try {
-      const response = await axios.get(`http://localhost:3001/api/reviews/product/${productId}`);
+      const response = await axios.get(`/api/reviews/product/${productId}`);
       const userReview = response.data.reviews.find(review => 
         review.reviewer_name === `${user.first_name} ${user.last_name}`
       );
@@ -55,7 +55,7 @@ const ProductReviews = ({ productId, productName }) => {
       if (userReview) {
         // Update existing review
         await axios.put(
-          `http://localhost:3001/api/reviews/${userReview.id}`,
+          `/api/reviews/${userReview.id}`,
           formData,
           {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -65,7 +65,7 @@ const ProductReviews = ({ productId, productName }) => {
       } else {
         // Add new review
         await axios.post(
-          'http://localhost:3001/api/reviews',
+          '/api/reviews',
           { ...formData, product_id: productId },
           {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -86,7 +86,7 @@ const ProductReviews = ({ productId, productName }) => {
     if (!window.confirm('Are you sure you want to delete your review?')) return;
     
     try {
-      await axios.delete(`http://localhost:3001/api/reviews/${userReview.id}`, {
+      await axios.delete(`/api/reviews/${userReview.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       toast.success('Review deleted successfully!');

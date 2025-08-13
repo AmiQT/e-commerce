@@ -26,17 +26,17 @@ const AdminDashboard = () => {
       setLoading(true);
       
       // Fetch dashboard statistics
-      const statsResponse = await axios.get('http://localhost:3001/api/admin/stats', {
+      const statsResponse = await axios.get('/api/admin/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
       // Fetch recent orders
-      const ordersResponse = await axios.get('http://localhost:3001/api/admin/recent-orders', {
+      const ordersResponse = await axios.get('/api/admin/recent-orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       setStats(statsResponse.data);
-      console.log('Recent orders data:', ordersResponse.data.orders);
+      
       setRecentOrders(ordersResponse.data.orders || []);
     } catch (err) {
       toast.error('Failed to fetch dashboard data');

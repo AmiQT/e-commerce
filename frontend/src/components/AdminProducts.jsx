@@ -29,7 +29,7 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/products');
+      const response = await axios.get('/api/products');
       setProducts(response.data);
     } catch (err) {
       toast.error('Failed to fetch products');
@@ -38,7 +38,7 @@ const AdminProducts = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/categories');
+      const response = await axios.get('/api/categories');
       setCategories(response.data);
     } catch (err) {
       toast.error('Failed to fetch categories');
@@ -75,7 +75,7 @@ const AdminProducts = () => {
       if (editingProduct) {
         // Update existing product
         await axios.put(
-          `http://localhost:3001/api/products/${editingProduct.id}`,
+          `/api/products/${editingProduct.id}`,
           formData,
           {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -85,7 +85,7 @@ const AdminProducts = () => {
       } else {
         // Add new product
         await axios.post(
-          'http://localhost:3001/api/products',
+          '/api/products',
           formData,
           {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -117,7 +117,7 @@ const AdminProducts = () => {
   const handleDelete = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/products/${productId}`, {
+        await axios.delete(`/api/products/${productId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         toast.success('Product deleted successfully!');

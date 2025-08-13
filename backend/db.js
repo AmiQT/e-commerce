@@ -14,14 +14,6 @@ const dbConfig = {
   connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
 };
 
-console.log('Database configuration:', {
-  user: dbConfig.user,
-  host: dbConfig.host,
-  database: dbConfig.database,
-  port: dbConfig.port,
-  // Don't log password for security
-});
-
 const pool = new Pool(dbConfig);
 
 // Test database connection on startup
@@ -38,8 +30,6 @@ pool.connect((err, client, release) => {
     release();
     if (err) {
       console.error('❌ Error testing database connection:', err.message);
-    } else {
-      console.log('✅ Database connected successfully!', result.rows[0]);
     }
   });
 });

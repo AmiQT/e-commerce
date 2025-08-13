@@ -27,7 +27,7 @@ const B2BPortal = () => {
   const fetchB2BData = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/b2b/dashboard', {
+      const response = await axios.get('/api/b2b/dashboard', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setB2bData(response.data);
@@ -225,7 +225,7 @@ const B2BPortal = () => {
     formData.append('file', file);
     
     try {
-      await axios.post('http://localhost:3001/api/b2b/bulk-import', formData, {
+              await axios.post('/api/b2b/bulk-import', formData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -244,7 +244,7 @@ const B2BPortal = () => {
   const handleBulkExport = async (type) => {
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/api/b2b/bulk-export', 
+              const response = await axios.post('/api/b2b/bulk-export', 
         { type },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );

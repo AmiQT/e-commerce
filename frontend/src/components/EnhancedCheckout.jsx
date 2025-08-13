@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'react-hot-toast';
+import { useCart } from '../context/CartContext';
+import { useUser } from '../context/UserContext';
 
-const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
+const EnhancedCheckout = () => {
   const navigate = useNavigate();
+  const { cart, clearCart } = useCart();
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [shippingMethod, setShippingMethod] = useState('standard');
@@ -16,6 +20,23 @@ const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
   
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const watchAllFields = watch();
+
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (!cart || cart.length === 0) {
+      toast.error('Your cart is empty!');
+      navigate('/cart');
+      return;
+    }
+    
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    if (!token || !user) {
+      toast.error('Please log in to continue with checkout');
+      navigate('/login');
+      return;
+    }
+  }, [cart, navigate, user]);
 
   // Shipping options
   const shippingOptions = [
@@ -83,7 +104,7 @@ const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
 
   const processStripePayment = async (paymentData) => {
     try {
-      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_mock');
       
       // Create payment intent
       const response = await fetch('/api/payments/create-intent', {
@@ -125,6 +146,11 @@ const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
     return { id: 'paypal_payment_' + Date.now() };
   };
 
+  const processSimpleCheckout = async () => {
+    // Simple checkout without payment processing (for testing)
+    return { id: 'simple_checkout_' + Date.now() };
+  };
+
   const onSubmit = async (formData) => {
     setIsLoading(true);
     
@@ -139,40 +165,38 @@ const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
         case 'paypal':
           paymentResult = await processPayPalPayment(formData);
           break;
+        case 'apple-pay':
+          // For now, simulate Apple Pay processing
+          paymentResult = { id: 'apple_pay_' + Date.now() };
+          break;
+        case 'google-pay':
+          // For now, simulate Google Pay processing
+          paymentResult = { id: 'google_pay_' + Date.now() };
+          break;
         default:
-          throw new Error('Unsupported payment method');
+          // Default to Stripe if unknown method
+          console.warn(`Unknown payment method: ${paymentMethod}, defaulting to Stripe`);
+          paymentResult = await processStripePayment(formData);
+          break;
       }
 
       // Create order
       const orderData = {
-        userId: user.id,
+        total_amount: getTotal(),
+        shipping_address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
         items: cart.map(item => ({
-          productId: item.id,
+          product_id: item.id,
           quantity: item.quantity,
-          price: item.price
-        })),
-        shippingAddress: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          country: formData.country
-        },
-        shippingMethod,
-        shippingCost,
-        taxAmount,
-        discountCode: discountApplied ? discountCode : null,
-        discountAmount: discountApplied ? (getSubtotal() * discountApplied.percentage / 100) : 0,
-        total: getTotal(),
-        paymentMethod,
-        paymentId: paymentResult.id
+          price_at_time: item.price
+        }))
       };
 
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(orderData)
       });
 
@@ -184,11 +208,11 @@ const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
       
       toast.success('Order placed successfully!');
       
-      if (onOrderComplete) {
-        onOrderComplete(order);
-      } else {
-        navigate(`/order-confirmation/${order.id}`);
-      }
+      // Clear the cart after successful order
+      clearCart();
+      
+      // Navigate to orders page
+      navigate('/orders');
 
     } catch (error) {
       console.error('Checkout error:', error);
@@ -412,6 +436,59 @@ const EnhancedCheckout = ({ cart, user, onOrderComplete }) => {
               className="w-full bg-blue-600 text-white py-3 px-6 rounded-md text-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Processing...' : `Pay $${getTotal().toFixed(2)}`}
+            </button>
+
+            {/* Simple Checkout Button (for testing) */}
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  setIsLoading(true);
+                  const paymentResult = await processSimpleCheckout();
+                  
+                  // Create order with simple checkout
+                  const orderData = {
+                    total_amount: getTotal(),
+                    shipping_address: 'Test Address',
+                    items: cart.map(item => ({
+                      product_id: item.id,
+                      quantity: item.quantity,
+                      price_at_time: item.price
+                    }))
+                  };
+
+                  const orderResponse = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(orderData)
+                  });
+
+                  if (!orderResponse.ok) {
+                    throw new Error('Failed to create order');
+                  }
+
+                  const order = await orderResponse.json();
+                  toast.success('Order placed successfully with simple checkout!');
+                  
+                  // Clear the cart after successful order
+                  clearCart();
+                  
+                  // Navigate to orders page
+                  navigate('/orders');
+                } catch (error) {
+                  console.error('Simple checkout error:', error);
+                  toast.error(error.message || 'Simple checkout failed. Please try again.');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              disabled={isLoading}
+              className="w-full mt-3 bg-green-600 text-white py-3 px-6 rounded-md text-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Processing...' : 'Simple Checkout (Test)'}
             </button>
           </form>
         </div>

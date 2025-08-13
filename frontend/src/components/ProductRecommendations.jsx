@@ -23,7 +23,15 @@ const ProductRecommendations = ({ userId, currentProductId, categoryId }) => {
       
       const response = await fetch(`${endpoint}?${params}`);
       const data = await response.json();
-      setRecommendations(data.slice(0, 6)); // Limit to 6 recommendations
+      
+      // Check if data is an array (success) or error object
+      if (Array.isArray(data)) {
+        setRecommendations(data.slice(0, 6)); // Limit to 6 recommendations
+      } else {
+        console.warn('Recommendations API returned error:', data);
+        // Fallback to similar products if recommendations fail
+        fetchSimilarProducts();
+      }
     } catch (error) {
       console.error('Error fetching recommendations:', error);
       // Fallback to similar products if recommendations fail

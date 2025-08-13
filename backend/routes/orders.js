@@ -6,7 +6,8 @@ const { auth } = require('../middleware/auth');
 // Create a new order
 router.post('/', auth, async (req, res, next) => {
   try {
-    const { user_id, total_amount, shipping_address, items } = req.body; // Changed cart_items to items
+    const { total_amount, shipping_address, items } = req.body;
+    const user_id = req.user.id;
     
     // Start transaction
     const client = await pool.connect();
@@ -36,8 +37,8 @@ router.post('/', auth, async (req, res, next) => {
         );
       }
       
-      // Clear user's cart (assuming shopping_cart table exists and is used for temporary cart)
-      await client.query('DELETE FROM shopping_cart WHERE user_id = $1', [user_id]);
+      // Note: Cart is managed by React Context, not database table
+      // await client.query('DELETE FROM shopping_cart WHERE user_id = $1', [user_id]);
       
       await client.query('COMMIT');
       res.status(201).json({ orderId }); // Return orderId
@@ -142,56 +143,6 @@ router.get('/:userId', auth, async (req, res, next) => {
     });
     
     res.json(Object.values(orders));
-  } catch (err) {
-    next(err);
-  }
-});
-
-// Get single order by ID (for order tracking)
-router.get('/order/:orderId', auth, async (req, res, next) => {
-  try {
-    const { orderId } = req.params;
-    const { user } = req; // From auth middleware
-    
-    // Get order details
-    const orderResult = await pool.query(`
-      SELECT o.*, oi.product_id, oi.quantity, oi.price_at_time, p.name as product_name
-      FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      LEFT JOIN products p ON oi.product_id = p.id
-      WHERE o.id = $1 AND o.user_id = $2
-    `, [orderId, user.id]);
-    
-    if (orderResult.rows.length === 0) {
-      return res.status(404).json({ msg: 'Order not found' });
-    }
-    
-    // Group order items
-    const order = {
-      id: orderResult.rows[0].id,
-      user_id: orderResult.rows[0].user_id,
-      total_amount: orderResult.rows[0].total_amount,
-      status: orderResult.rows[0].status || 'pending',
-      shipping_address: orderResult.rows[0].shipping_address,
-      shipping_city: orderResult.rows[0].shipping_city,
-      shipping_postal_code: orderResult.rows[0].shipping_postal_code,
-      shipping_country: orderResult.rows[0].shipping_country,
-      created_at: orderResult.rows[0].created_at,
-      items: []
-    };
-    
-    orderResult.rows.forEach(row => {
-      if (row.product_id) {
-        order.items.push({
-          product_id: row.product_id,
-          product_name: row.product_name,
-          quantity: row.quantity,
-          price_at_time: row.price_at_time
-        });
-      }
-    });
-    
-    res.json(order);
   } catch (err) {
     next(err);
   }

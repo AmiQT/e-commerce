@@ -18,8 +18,32 @@ export const UserProvider = ({ children }) => {
       const parsedUser = JSON.parse(savedUser);
       setUser(parsedUser);
       setToken(savedToken);
+      // Validate token and fetch wishlist
+      validateTokenAndFetchWishlist(savedToken, parsedUser.id);
     }
   }, []);
+
+  const validateTokenAndFetchWishlist = async (tokenToValidate, userId) => {
+    try {
+      // Test token validity by making a request
+      await axios.get(`${API_URL}/wishlist`, {
+        headers: {
+          'Authorization': `Bearer ${tokenToValidate}`
+        }
+      });
+      // Token is valid, fetch wishlist
+      fetchWishlist(userId);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        // Token is invalid, clear everything
+        setUser(null);
+        setToken(null);
+        setWishlist([]);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+  };
 
   // Separate useEffect for wishlist fetching after token is set
   useEffect(() => {
@@ -28,8 +52,20 @@ export const UserProvider = ({ children }) => {
     }
   }, [user, token]);
 
+  // Refresh user profile on mount to ensure we have latest data including admin status
+  useEffect(() => {
+    if (token) {
+      refreshUserProfile();
+    }
+  }, [token]);
+
   const fetchWishlist = async (userId) => {
     try {
+      if (!token) {
+        setWishlist([]);
+        return;
+      }
+      
       const response = await axios.get(`${API_URL}/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -37,7 +73,20 @@ export const UserProvider = ({ children }) => {
       });
       setWishlist(response.data);
     } catch (error) {
-      toast.error('Error fetching wishlist.');
+      // Handle authentication errors
+      if (error.response && error.response.status === 401) {
+        // Token expired or invalid, clear user data
+        setUser(null);
+        setToken(null);
+        setWishlist([]);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        toast.error('Session expired. Please log in again.');
+      } else {
+        // Other errors - just set empty array
+        console.error('Wishlist fetch error:', error);
+        setWishlist([]);
+      }
     }
   };
 
@@ -48,6 +97,31 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem('token', userToken);
     fetchWishlist(userData.id);
     toast.success(`Welcome, ${userData.first_name}!`);
+    
+    // Refresh user profile to ensure we have latest data including admin status
+    setTimeout(() => {
+      refreshUserProfile();
+    }, 100);
+  };
+
+  const refreshUserProfile = async () => {
+    if (!token) return;
+    
+    try {
+      const response = await axios.get(`${API_URL}/auth/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.data.user) {
+        const updatedUser = response.data.user;
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      // If profile refresh fails, don't show error to user
+    }
   };
 
   const handleLogout = () => {
@@ -81,23 +155,30 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const removeFromWishlist = async (productId) => {
+  const removeFromWishlist = async (wishlistItemId) => {
     if (!user) return;
     try {
-      await axios.delete(`${API_URL}/wishlist/${productId}`, {
+      const response = await axios.delete(`${API_URL}/wishlist/${wishlistItemId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      fetchWishlist(user.id); // Refresh wishlist
-      toast.success('Item removed from wishlist.');
+      
+      // Only show success if we actually got a successful response
+      if (response.status === 200) {
+        await fetchWishlist(user.id); // Refresh wishlist
+        return true; // Return success indicator
+      } else {
+        throw new Error('Failed to remove item');
+      }
     } catch (error) {
-      toast.error('Failed to remove item from wishlist.');
+      console.error('Remove from wishlist error:', error);
+      throw error; // Re-throw to let component handle it
     }
   };
 
   return (
-    <UserContext.Provider value={{ user, token, wishlist, handleLogin, handleLogout, addToWishlist, removeFromWishlist, fetchWishlist }}>
+    <UserContext.Provider value={{ user, token, wishlist, handleLogin, handleLogout, addToWishlist, removeFromWishlist, fetchWishlist, refreshUserProfile }}>
       {children}
     </UserContext.Provider>
   );
