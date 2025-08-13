@@ -5,6 +5,7 @@ import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 import AdvancedSearch from './AdvancedSearch';
+import { buildApiUrl, getEndpoint } from '../config/api';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -32,7 +33,8 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('/api/products');
+      setLoading(true);
+      const response = await axios.get(buildApiUrl(getEndpoint('PRODUCTS')));
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -43,7 +45,7 @@ const Products = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('/api/categories');
+      const response = await axios.get(buildApiUrl(getEndpoint('CATEGORIES')));
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);

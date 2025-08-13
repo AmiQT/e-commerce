@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import { toast } from 'react-toastify';
+import { buildApiUrl, getEndpoint } from '../config/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -60,7 +61,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/register', formData, {
+      const response = await axios.post(buildApiUrl(getEndpoint('REGISTER')), formData, {
         headers: {
           'Content-Type': 'application/json',
         },

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import { toast } from 'react-toastify';
+import { buildApiUrl, getEndpoint } from '../config/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -55,7 +56,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', formData, {
+      const response = await axios.post(buildApiUrl(getEndpoint('LOGIN')), formData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -63,6 +64,7 @@ const Login = () => {
       
       if (response.data.user) {
         handleLogin(response.data.user, response.data.token);
+        toast.success('Login successful!');
         navigate('/');
       }
     } catch (err) {
