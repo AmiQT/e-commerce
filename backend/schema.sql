@@ -71,20 +71,24 @@ CREATE TABLE IF NOT EXISTS wishlists (
     UNIQUE(user_id, product_id)
 );
 
--- Insert sample data
+-- Insert sample data for StyleHub Fashion E-commerce
 INSERT INTO categories (name, description) VALUES 
-    ('Electronics', 'Electronic devices and accessories'),
-    ('Clothing', 'Fashion and apparel'),
-    ('Books', 'Books and literature'),
-    ('Home & Garden', 'Home improvement and gardening supplies')
+    ('New Arrivals', 'Latest fashion trends and new releases'),
+    ('Men', 'Men\'s clothing and accessories'),
+    ('Women', 'Women\'s fashion and style'),
+    ('Accessories', 'Fashion accessories and jewelry'),
+    ('Sale', 'Discounted fashion items')
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO products (name, description, price, stock, category_id, image_url) VALUES 
-    ('Wireless Headphones', 'High-quality wireless headphones with noise cancellation', 99.99, 50, 1, 'https://via.placeholder.com/300x300?text=Headphones'),
-    ('Smartphone', 'Latest smartphone with advanced features', 699.99, 25, 1, 'https://via.placeholder.com/300x300?text=Smartphone'),
-    ('Cotton T-Shirt', 'Comfortable cotton t-shirt in various colors', 19.99, 100, 2, 'https://via.placeholder.com/300x300?text=T-Shirt'),
-    ('Programming Book', 'Learn modern web development', 29.99, 75, 3, 'https://via.placeholder.com/300x300?text=Book'),
-    ('Garden Tool Set', 'Complete set of essential garden tools', 49.99, 30, 4, 'https://via.placeholder.com/300x300?text=Garden+Tools')
+    ('Classic White Sneakers', 'Versatile white sneakers perfect for any outfit', 89.99, 75, 1, 'https://via.placeholder.com/300x300?text=White+Sneakers'),
+    ('Denim Jacket', 'Timeless denim jacket with modern fit', 129.99, 45, 2, 'https://via.placeholder.com/300x300?text=Denim+Jacket'),
+    ('Floral Summer Dress', 'Beautiful floral print dress perfect for summer', 79.99, 60, 3, 'https://via.placeholder.com/300x300?text=Summer+Dress'),
+    ('Leather Crossbody Bag', 'Stylish leather bag with adjustable strap', 149.99, 35, 4, 'https://via.placeholder.com/300x300?text=Leather+Bag'),
+    ('Premium Cotton T-Shirt', 'Soft cotton t-shirt in multiple colors', 29.99, 120, 2, 'https://via.placeholder.com/300x300?text=Cotton+T-Shirt'),
+    ('Designer Sunglasses', 'Trendy sunglasses with UV protection', 199.99, 25, 4, 'https://via.placeholder.com/300x300?text=Sunglasses'),
+    ('High-Waist Jeans', 'Fashionable high-waist jeans for women', 99.99, 55, 3, 'https://via.placeholder.com/300x300?text=High+Waist+Jeans'),
+    ('Casual Blazer', 'Professional yet casual blazer for men', 179.99, 40, 2, 'https://via.placeholder.com/300x300?text=Casual+Blazer')
 ON CONFLICT DO NOTHING;
 
 -- Create indexes for better performance
