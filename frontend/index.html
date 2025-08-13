@@ -4,10 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>StyleHub - Fashion E-commerce</title>
+    <title>StyleHub - Fashion E-commerce</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Single Page Apps for GitHub Pages -->
+    <script>
+      // This script takes the current url and converts the path and query
+      // string into just a query string, and then redirects the browser
+      // to the new url with only a query string and hash fragment.
+      var pathSegmentsToKeep = 1;
+
+      var l = window.location;
+      if (l.search[1] === '/' ) {
+        var decoded = l.search.slice(1).split('/').map(function(s) {
+          return s.replace(/~and~/g, '&')
+        }).join('/');
+        l.replace(l.protocol + '//' + l.host + l.pathname.slice(0, -1) + decoded + l.hash);
+      }
+    </script>
   </body>
 </html>
