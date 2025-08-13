@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "express-validator": "^7.2.1"
+  }
+}

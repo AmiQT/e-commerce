@@ -1,0 +1,581 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Improved color scheme for better readability */
+:root {
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #6b7280;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --accent-primary: #dc2626;
+  --accent-secondary: #ef4444;
+  --border-color: #e5e7eb;
+  --success-color: #059669;
+  --warning-color: #d97706;
+  --error-color: #dc2626;
+}
+
+/* Base text improvements */
+body {
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  line-height: 1.6;
+}
+
+/* Improved button styles */
+.btn-primary {
+  @apply bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+.btn-success {
+  @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+/* Improved form styles */
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+/* Improved card styles */
+.card {
+  @apply bg-white rounded-lg shadow-md border border-gray-200 p-6;
+}
+
+/* Improved text contrast */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Improved dropdown styles */
+.dropdown-select {
+  @apply w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900;
+}
+
+/* Improved toast notifications */
+.toast-success {
+  @apply bg-green-600 text-white border border-green-700;
+}
+
+.toast-error {
+  @apply bg-red-600 text-white border border-red-700;
+}
+
+.toast-warning {
+  @apply bg-yellow-600 text-white border border-yellow-700;
+}
+
+/* Improved navigation */
+.nav-link {
+  @apply text-gray-800 hover:text-red-600 transition-colors duration-200 font-medium;
+}
+
+.nav-link-active {
+  @apply text-red-600 font-semibold;
+}
+
+/* Improved product cards */
+.product-card {
+  @apply bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200;
+}
+
+.product-title {
+  @apply text-lg font-semibold text-gray-900 mb-2;
+}
+
+.product-price {
+  @apply text-xl font-bold text-red-600;
+}
+
+.product-description {
+  @apply text-gray-600 text-sm mb-3;
+}
+
+/* Improved wishlist items */
+.wishlist-item {
+  @apply bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer;
+}
+
+.wishlist-item:hover {
+  @apply border-red-300;
+}
+
+/* Improved discount field */
+.discount-field {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
+}
+
+.discount-button {
+  @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+/* Improved admin section */
+.admin-link {
+  @apply text-red-600 hover:text-red-700 font-semibold;
+}
+
+/* Improved form sections */
+.form-section {
+  @apply mb-6;
+}
+
+.form-section-title {
+  @apply text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200;
+}
+
+/* Improved checkbox and radio styles */
+.checkbox-item {
+  @apply flex items-center mb-3;
+}
+
+.checkbox-input {
+  @apply h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded;
+}
+
+.checkbox-label {
+  @apply ml-2 text-sm text-gray-700;
+}
+
+/* Improved rating display */
+.rating-stars {
+  @apply text-yellow-400 text-xl;
+}
+
+.rating-text {
+  @apply text-gray-700 font-medium;
+}
+
+/* Improved stock display */
+.stock-badge {
+  @apply inline-block px-2 py-1 text-xs font-semibold rounded-full;
+}
+
+.stock-in {
+  @apply bg-green-100 text-green-800;
+}
+
+.stock-low {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.stock-out {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Mobile-First Responsive Design */
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Ensure proper touch targets on mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile-optimized form elements */
+  input, select, textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Smooth scrolling for mobile */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  /* Mobile-optimized buttons */
+  .btn-mobile {
+    @apply px-4 py-3 text-base font-medium rounded-lg transition-all duration-200;
+    @apply active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn-mobile bg-[#ea2a33] text-white hover:bg-[#d4252e];
+    @apply focus:ring-[#ea2a33] shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply btn-mobile bg-gray-100 text-[#1b0e0e] hover:bg-gray-200;
+    @apply focus:ring-gray-300;
+  }
+
+  /* Mobile-optimized cards */
+  .card-mobile {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+    @apply transition-all duration-200 hover:shadow-lg;
+    @apply active:scale-[0.98];
+  }
+
+  /* Mobile-optimized inputs */
+  .input-mobile {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+
+  /* Mobile-optimized navigation */
+  .nav-mobile {
+    @apply fixed top-0 left-0 right-0 z-50 bg-white shadow-md;
+    @apply transition-all duration-300;
+  }
+
+  /* Mobile-optimized grid layouts */
+  .grid-mobile {
+    @apply grid gap-4 sm:gap-6;
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Mobile-optimized spacing */
+  .section-mobile {
+    @apply py-8 sm:py-12 lg:py-16;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Mobile-optimized typography */
+  .text-mobile-h1 {
+    @apply text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold;
+    @apply leading-tight;
+  }
+
+  .text-mobile-h2 {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold;
+    @apply leading-tight;
+  }
+
+  .text-mobile-h3 {
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
+    @apply leading-tight;
+  }
+
+  .text-mobile-body {
+    @apply text-base sm:text-lg lg:text-xl;
+    @apply leading-relaxed;
+  }
+
+  /* Mobile-optimized containers */
+  .container-mobile {
+    @apply max-w-7xl mx-auto;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Mobile-optimized hero sections */
+  .hero-mobile {
+    @apply min-h-screen flex items-center justify-center;
+    @apply relative overflow-hidden;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Mobile-optimized search bars */
+  .search-mobile {
+    @apply w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+
+  /* Mobile-optimized product cards */
+  .product-card-mobile {
+    @apply card-mobile;
+    @apply hover:shadow-xl active:scale-[0.98];
+    @apply transition-all duration-300;
+  }
+
+  /* Mobile-optimized wishlist button */
+  .wishlist-btn-mobile {
+    @apply absolute top-2 right-2 p-2 rounded-full;
+    @apply transition-all duration-200;
+    @apply active:scale-90;
+  }
+
+  /* Mobile-optimized action buttons */
+  .action-btn-mobile {
+    @apply flex-1 py-3 px-4 rounded-lg font-medium;
+    @apply transition-all duration-200;
+    @apply active:scale-95 focus:outline-none focus:ring-2;
+  }
+
+  /* Mobile-optimized category cards */
+  .category-card-mobile {
+    @apply card-mobile text-center;
+    @apply hover:shadow-xl active:scale-[0.98];
+    @apply transition-all duration-300;
+  }
+
+  /* Mobile-optimized feature cards */
+  .feature-card-mobile {
+    @apply card-mobile text-center p-6;
+    @apply hover:shadow-lg active:scale-[0.98];
+    @apply transition-all duration-300;
+  }
+
+  /* Mobile-optimized CTA sections */
+  .cta-mobile {
+    @apply py-12 sm:py-16 lg:py-20;
+    @apply text-center;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Mobile-optimized loading states */
+  .loading-mobile {
+    @apply animate-pulse;
+  }
+
+  .loading-skeleton-mobile {
+    @apply bg-gray-200 rounded;
+    @apply animate-pulse;
+  }
+
+  /* Mobile-optimized error states */
+  .error-mobile {
+    @apply text-center py-12;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Mobile-optimized empty states */
+  .empty-mobile {
+    @apply text-center py-12;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Mobile-optimized mobile menu */
+  .mobile-menu {
+    @apply lg:hidden bg-white border-t border-gray-200;
+    @apply py-4 transition-all duration-300;
+  }
+
+  .mobile-menu-item {
+    @apply block text-center py-3 px-4;
+    @apply text-[#1b0e0e] hover:text-[#ea2a33];
+    @apply transition-colors duration-200;
+    @apply active:bg-gray-50;
+  }
+
+  /* Mobile-optimized hamburger menu */
+  .hamburger-mobile {
+    @apply lg:hidden p-2 text-[#1b0e0e] hover:text-[#ea2a33];
+    @apply transition-colors duration-200;
+    @apply active:scale-95;
+  }
+
+  /* Mobile-optimized responsive utilities */
+  .mobile-only {
+    @apply block lg:hidden;
+  }
+
+  .desktop-only {
+    @apply hidden lg:block;
+  }
+
+  .tablet-up {
+    @apply hidden sm:block;
+  }
+
+  .mobile-down {
+    @apply block sm:hidden;
+  }
+}
+
+@layer utilities {
+  /* Mobile-specific utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile-optimized shadows */
+  .shadow-mobile {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-mobile-lg {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Mobile-optimized transitions */
+  .transition-mobile {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-mobile-fast {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Mobile-optimized transforms */
+  .scale-mobile {
+    transform: scale(0.98);
+  }
+
+  .scale-mobile-hover {
+    transform: scale(1.02);
+  }
+
+  /* Mobile-optimized focus states */
+  .focus-mobile {
+    @apply focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:ring-offset-2;
+  }
+
+  /* Mobile-optimized active states */
+  .active-mobile {
+    @apply active:scale-95 active:opacity-80;
+  }
+
+  /* Mobile-optimized hover states */
+  .hover-mobile {
+    @apply hover:scale-105 hover:shadow-lg;
+  }
+}
+
+/* Mobile-specific media queries */
+@media (max-width: 640px) {
+  .container-mobile {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .section-mobile {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .text-mobile-h1 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+
+  .text-mobile-h2 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  .text-mobile-h3 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .btn-mobile {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .input-mobile {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-mobile {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .hero-mobile {
+    min-height: 80vh;
+    padding: 1rem;
+  }
+
+  .text-mobile-h1 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  .text-mobile-h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .text-mobile-h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Ensure proper touch behavior on mobile */
+@media (hover: none) and (pointer: coarse) {
+  .hover-mobile:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .hover-mobile:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* High contrast mode support for accessibility */
+@media (prefers-contrast: high) {
+  .btn-primary {
+    border: 2px solid currentColor;
+  }
+
+  .card-mobile {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
