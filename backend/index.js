@@ -385,8 +385,7 @@ app.listen(port, async () => {
         ('Men', 'Men''s clothing and accessories'),
         ('Women', 'Women''s fashion and style'),
         ('Accessories', 'Fashion accessories and jewelry'),
-        ('Sale', 'Discounted fashion items')
-      ON CONFLICT (name) DO NOTHING;
+        ('Sale', 'Discounted fashion items');
     `);
     
     await pool.query(`
@@ -398,8 +397,7 @@ app.listen(port, async () => {
         ('Premium Cotton T-Shirt', 'Soft cotton t-shirt in multiple colors', 29.99, 120, 2, 'https://via.placeholder.com/300x300?text=Cotton+T-Shirt'),
         ('Designer Sunglasses', 'Trendy sunglasses with UV protection', 199.99, 25, 4, 'https://via.placeholder.com/300x300?text=Sunglasses'),
         ('High-Waist Jeans', 'Fashionable high-waist jeans for women', 99.99, 55, 3, 'https://via.placeholder.com/300x300?text=High+Waist+Jeans'),
-        ('Casual Blazer', 'Professional yet casual blazer for men', 179.99, 40, 2, 'https://via.placeholder.com/300x300?text=Casual+Blazer')
-      ON CONFLICT DO NOTHING;
+        ('Casual Blazer', 'Professional yet casual blazer for men', 179.99, 40, 2, 'https://via.placeholder.com/300x300?text=Casual+Blazer');
     `);
     
     console.log('✅ Database tables initialized successfully!');
