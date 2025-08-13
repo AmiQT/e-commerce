@@ -2,7 +2,7 @@
 const API_CONFIG = {
   // Base URL - change this based on environment
   BASE_URL: process.env.NODE_ENV === 'production' 
-    ? (process.env.VITE_API_URL || 'https://your-render-backend-url.onrender.com/api')
+    ? (process.env.VITE_API_URL || 'https://e-commerce-jfq1.onrender.com/api')
     : '/api',
   
   // API Endpoints
