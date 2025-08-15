@@ -1,4 +1,4 @@
-// Simple Vercel serverless function - no complex dependencies
+// Ultra-simple Vercel serverless function - no complex logic
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,20 +12,19 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Parse URL properly for Vercel
-    const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
-    const pathname = url.pathname;
-
-    console.log('Request:', req.method, pathname);
+    // Get the path from the request
+    const path = req.url || '/';
+    
+    console.log('Request:', req.method, path);
 
     // Health check
-    if (pathname === '/health' && req.method === 'GET') {
+    if (path === '/health' && req.method === 'GET') {
       res.json({ status: 'OK', timestamp: new Date().toISOString() });
       return;
     }
 
     // Categories endpoint
-    if (pathname === '/categories' && req.method === 'GET') {
+    if (path === '/categories' && req.method === 'GET') {
       const categories = [
         { id: 1, name: "Electronics", description: "Electronic devices and gadgets" },
         { id: 2, name: "Clothing", description: "Fashion and apparel" },
@@ -37,7 +36,7 @@ module.exports = async (req, res) => {
     }
 
     // Products endpoint
-    if (pathname === '/products' && req.method === 'GET') {
+    if (path === '/products' && req.method === 'GET') {
       const products = [
         {
           id: 1,
@@ -68,28 +67,28 @@ module.exports = async (req, res) => {
     }
 
     // Auth endpoints - simplified for now
-    if (pathname === '/auth/register' && req.method === 'POST') {
+    if (path === '/auth/register' && req.method === 'POST') {
       // Simple mock response
       res.json({ 
         message: 'Registration endpoint working!',
         user: {
           id: 1,
-          email: req.body?.email || 'test@example.com',
-          first_name: req.body?.first_name || 'Test',
-          last_name: req.body?.last_name || 'User'
+          email: 'test@example.com',
+          first_name: 'Test',
+          last_name: 'User'
         },
         token: 'mock-jwt-token-123'
       });
       return;
     }
 
-    if (pathname === '/auth/login' && req.method === 'POST') {
+    if (path === '/auth/login' && req.method === 'POST') {
       // Simple mock response
       res.json({
         message: 'Login endpoint working!',
         user: {
           id: 1,
-          email: req.body?.email || 'test@example.com',
+          email: 'test@example.com',
           first_name: 'Test',
           last_name: 'User',
           is_admin: false
@@ -100,7 +99,7 @@ module.exports = async (req, res) => {
     }
 
     // Cart endpoint
-    if (pathname === '/cart' && req.method === 'GET') {
+    if (path === '/cart' && req.method === 'GET') {
       res.json({
         items: [],
         total: 0
@@ -109,7 +108,7 @@ module.exports = async (req, res) => {
     }
 
     // 404 for unmatched routes
-    res.status(404).json({ error: 'Endpoint not found' });
+    res.status(404).json({ error: 'Endpoint not found', path: path });
 
   } catch (error) {
     console.error('API Error:', error);
