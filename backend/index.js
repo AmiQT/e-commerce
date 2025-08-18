@@ -282,6 +282,12 @@ app.get('/api/routes-test', (req, res) => {
   });
 });
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
+});
+
 // Use route modules
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
