@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getProductPlaceholder, getFallbackImage } from '../utils/placeholderImage';
 
 const ProductRecommendations = ({ userId, currentProductId, categoryId }) => {
   const [recommendations, setRecommendations] = useState([]);
@@ -119,11 +120,11 @@ const ProductRecommendations = ({ userId, currentProductId, categoryId }) => {
           >
             <div className="relative">
               <img
-                src={product.image_url || '/placeholder-product.jpg'}
+                src={product.image_url || getProductPlaceholder(product.name)}
                 alt={product.name}
                 className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
                 onError={(e) => {
-                  e.target.src = '/placeholder-product.jpg';
+                  e.target.src = getFallbackImage();
                 }}
               />
               

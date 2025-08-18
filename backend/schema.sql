@@ -77,8 +77,7 @@ INSERT INTO categories (name, description) VALUES
     ('Men', 'Men\'s clothing and accessories'),
     ('Women', 'Women\'s fashion and style'),
     ('Accessories', 'Fashion accessories and jewelry'),
-    ('Sale', 'Discounted fashion items')
-ON CONFLICT (name) DO NOTHING;
+    ('Sale', 'Discounted fashion items');
 
 INSERT INTO products (name, description, price, stock, category_id, image_url) VALUES 
     ('Classic White Sneakers', 'Versatile white sneakers perfect for any outfit', 89.99, 75, 1, 'https://via.placeholder.com/300x300?text=White+Sneakers'),
@@ -88,8 +87,7 @@ INSERT INTO products (name, description, price, stock, category_id, image_url) V
     ('Premium Cotton T-Shirt', 'Soft cotton t-shirt in multiple colors', 29.99, 120, 2, 'https://via.placeholder.com/300x300?text=Cotton+T-Shirt'),
     ('Designer Sunglasses', 'Trendy sunglasses with UV protection', 199.99, 25, 4, 'https://via.placeholder.com/300x300?text=Sunglasses'),
     ('High-Waist Jeans', 'Fashionable high-waist jeans for women', 99.99, 55, 3, 'https://via.placeholder.com/300x300?text=High+Waist+Jeans'),
-    ('Casual Blazer', 'Professional yet casual blazer for men', 179.99, 40, 2, 'https://via.placeholder.com/300x300?text=Casual+Blazer')
-ON CONFLICT DO NOTHING;
+    ('Casual Blazer', 'Professional yet casual blazer for men', 179.99, 40, 2, 'https://via.placeholder.com/300x300?text=Casual+Blazer');
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);

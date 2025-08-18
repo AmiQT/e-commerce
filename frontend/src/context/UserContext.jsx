@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { buildApiUrl } from '../config/api';
 
 const UserContext = createContext();
 
@@ -9,7 +10,7 @@ export const UserProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [token, setToken] = useState(null);
 
-  const API_URL = '/api';
+
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -26,7 +27,7 @@ export const UserProvider = ({ children }) => {
   const validateTokenAndFetchWishlist = async (tokenToValidate, userId) => {
     try {
       // Test token validity by making a request
-      await axios.get(`${API_URL}/wishlist`, {
+      await axios.get(buildApiUrl('/wishlist'), {
         headers: {
           'Authorization': `Bearer ${tokenToValidate}`
         }
@@ -66,7 +67,7 @@ export const UserProvider = ({ children }) => {
         return;
       }
       
-      const response = await axios.get(`${API_URL}/wishlist`, {
+      const response = await axios.get(buildApiUrl('/wishlist'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -108,7 +109,7 @@ export const UserProvider = ({ children }) => {
     if (!token) return;
     
     try {
-      const response = await axios.get(`${API_URL}/auth/profile`, {
+      const response = await axios.get(buildApiUrl('/auth/profile'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -139,7 +140,7 @@ export const UserProvider = ({ children }) => {
       return;
     }
     try {
-      await axios.post(`${API_URL}/wishlist`, { user_id: user.id, product_id: productId }, {
+      await axios.post(buildApiUrl('/wishlist'), { user_id: user.id, product_id: productId }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -158,7 +159,7 @@ export const UserProvider = ({ children }) => {
   const removeFromWishlist = async (wishlistItemId) => {
     if (!user) return;
     try {
-      const response = await axios.delete(`${API_URL}/wishlist/${wishlistItemId}`, {
+      const response = await axios.delete(buildApiUrl(`/wishlist/${wishlistItemId}`), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -184,4 +185,10 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-export const useUser = () => useContext(UserContext);
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+};

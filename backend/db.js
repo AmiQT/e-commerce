@@ -11,7 +11,8 @@ const dbConfig = {
   // Connection pool settings
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
+  retryDelay: 1000, // Wait 1 second between retries
 };
 
 const pool = new Pool(dbConfig);
@@ -30,6 +31,8 @@ pool.connect((err, client, release) => {
     release();
     if (err) {
       console.error('❌ Error testing database connection:', err.message);
+    } else {
+      console.log('✅ Database connection test successful:', result.rows[0].now);
     }
   });
 });

@@ -301,6 +301,30 @@ const UserProfile = () => {
             )}
           </div>
 
+          {/* Orders Section */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-[#f3e7e8] mt-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-[#1b0e0e]">Order History</h2>
+              <Link 
+                to="/orders" 
+                className="px-4 py-2 text-sm font-medium text-[#ea2a33] bg-white border border-[#ea2a33] rounded-lg hover:bg-[#ea2a33] hover:text-white transition-colors"
+              >
+                View All Orders
+              </Link>
+            </div>
+            
+            <div className="text-center py-8">
+              <div className="text-4xl mb-4">📦</div>
+              <p className="text-[#994d51] mb-4">Track your orders and view order history</p>
+              <Link 
+                to="/orders" 
+                className="inline-block bg-[#ea2a33] text-white px-6 py-3 rounded-lg hover:bg-[#d4252e] transition-colors font-medium"
+              >
+                Go to Orders
+              </Link>
+            </div>
+          </div>
+
           {/* Wishlist Sharing */}
           <div className="mt-8">
             <WishlistSharing />

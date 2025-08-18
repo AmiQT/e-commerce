@@ -189,7 +189,7 @@ const WishlistSharing = () => {
           <h3 className="font-semibold text-[#1b0e0e] mb-2">Your Wishlist Summary</h3>
           <div className="flex items-center justify-between text-sm text-[#994d51]">
             <span>{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'}</span>
-            <span>Total Value: ${wishlist.reduce((sum, item) => sum + (item.price || 0), 0).toFixed(2)}</span>
+            <span>Total Value: ${(wishlist.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0)).toFixed(2)}</span>
           </div>
         </div>
       )}

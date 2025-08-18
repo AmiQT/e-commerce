@@ -8,12 +8,15 @@ const ShippingCalculator = ({ cartItems, onShippingSelect }) => {
   const [selectedShipping, setSelectedShipping] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
+  // Ensure cartItems is always an array
+  const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
+
   // Calculate total weight and dimensions
   const calculateTotals = () => {
     let totalWeight = 0;
     let totalVolume = 0;
     
-    cartItems.forEach(item => {
+    safeCartItems.forEach(item => {
       // Assume average weight per item (in lbs)
       const itemWeight = item.weight || 1;
       totalWeight += itemWeight * item.quantity;
@@ -233,7 +236,7 @@ const ShippingCalculator = ({ cartItems, onShippingSelect }) => {
       )}
 
       {/* Package Information */}
-      {cartItems.length > 0 && (
+      {safeCartItems.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200">
           <h4 className="font-medium text-gray-900 mb-3">Package Information</h4>
           <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
@@ -243,7 +246,7 @@ const ShippingCalculator = ({ cartItems, onShippingSelect }) => {
             </div>
             <div>
               <span className="font-medium">Items:</span>
-              <span className="ml-2">{cartItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
+              <span className="ml-2">{safeCartItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
             </div>
           </div>
         </div>

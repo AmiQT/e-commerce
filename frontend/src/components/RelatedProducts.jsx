@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { getProductPlaceholder, getFallbackImage } from '../utils/placeholderImage';
 
 const RelatedProducts = ({ productId, currentProductName }) => {
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -51,20 +52,14 @@ const RelatedProducts = ({ productId, currentProductName }) => {
             className="group block bg-[#fcf8f8] rounded-xl p-4 hover:shadow-lg transition-all duration-300 hover:scale-105 border border-[#f3e7e8] hover:border-[#ea2a33]"
           >
             <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
-              {product.image_url && product.image_url.includes('unsplash') ? (
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f3e7e8] to-[#fcf8f8]">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">👗</div>
-                    <p className="text-sm text-[#994d51] font-medium">{product.name}</p>
-                  </div>
-                </div>
-              )}
+              <img
+                src={product.image_url || getProductPlaceholder(product.name)}
+                alt={product.name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                onError={(e) => {
+                  e.target.src = getFallbackImage();
+                }}
+              />
             </div>
             
             <div className="space-y-2">

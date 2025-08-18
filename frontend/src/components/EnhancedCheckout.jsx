@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { loadStripe } from '@stripe/stripe-js';
-import { toast } from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useUser } from '../context/UserContext';
+import { buildApiUrl } from '../config/api';
+import { toast } from 'react-toastify';
+import { getProductPlaceholder, getFallbackImage } from '../utils/placeholderImage';
 
 const EnhancedCheckout = () => {
   const navigate = useNavigate();
   const { cart, clearCart } = useCart();
-  const { user } = useUser();
+  const { user, token } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [shippingMethod, setShippingMethod] = useState('standard');
@@ -21,9 +23,12 @@ const EnhancedCheckout = () => {
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const watchAllFields = watch();
 
+  // Ensure cart is always an array
+  const safeCart = Array.isArray(cart) ? cart : [];
+
   // Redirect if cart is empty
   useEffect(() => {
-    if (!cart || cart.length === 0) {
+    if (!safeCart || safeCart.length === 0) {
       toast.error('Your cart is empty!');
       navigate('/cart');
       return;
@@ -36,7 +41,7 @@ const EnhancedCheckout = () => {
       navigate('/login');
       return;
     }
-  }, [cart, navigate, user]);
+  }, [safeCart, navigate, user]);
 
   // Shipping options
   const shippingOptions = [
@@ -55,7 +60,7 @@ const EnhancedCheckout = () => {
 
   useEffect(() => {
     calculateShippingAndTax();
-  }, [shippingMethod, cart, discountApplied]);
+  }, [shippingMethod, safeCart, discountApplied]);
 
   const calculateShippingAndTax = () => {
     // Calculate shipping cost
@@ -63,7 +68,7 @@ const EnhancedCheckout = () => {
     setShippingCost(selectedShipping ? selectedShipping.cost : 0);
 
     // Calculate tax (simplified - you can integrate with tax calculation service)
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = safeCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const discountAmount = discountApplied ? (subtotal * discountApplied.percentage / 100) : 0;
     const taxableAmount = subtotal - discountAmount;
     setTaxAmount(taxableAmount * 0.08); // 8% tax rate
@@ -93,7 +98,7 @@ const EnhancedCheckout = () => {
   };
 
   const getSubtotal = () => {
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return safeCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
   const getTotal = () => {
@@ -184,27 +189,41 @@ const EnhancedCheckout = () => {
       const orderData = {
         total_amount: getTotal(),
         shipping_address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
-        items: cart.map(item => ({
+        items: safeCart.map(item => ({
           product_id: item.id,
           quantity: item.quantity,
           price_at_time: item.price
         }))
       };
 
-      const orderResponse = await fetch('/api/orders', {
+      console.log('Creating order with data:', orderData);
+      console.log('Using token:', token ? 'Token exists' : 'No token');
+      console.log('User ID:', user?.id);
+
+      if (!token) {
+        throw new Error('Authentication token not found. Please log in again.');
+      }
+
+      const orderResponse = await fetch(buildApiUrl('/orders'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(orderData)
       });
 
+      console.log('Order API response status:', orderResponse.status);
+      console.log('Order API response headers:', orderResponse.headers);
+
       if (!orderResponse.ok) {
-        throw new Error('Failed to create order');
+        const errorData = await orderResponse.json().catch(() => ({}));
+        console.error('Order creation failed:', errorData);
+        throw new Error(errorData.message || `Failed to create order. Status: ${orderResponse.status}`);
       }
 
       const order = await orderResponse.json();
+      console.log('Order created successfully:', order);
       
       toast.success('Order placed successfully!');
       
@@ -222,7 +241,7 @@ const EnhancedCheckout = () => {
     }
   };
 
-  if (!cart || cart.length === 0) {
+  if (!safeCart || safeCart.length === 0) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
@@ -450,27 +469,38 @@ const EnhancedCheckout = () => {
                   const orderData = {
                     total_amount: getTotal(),
                     shipping_address: 'Test Address',
-                    items: cart.map(item => ({
+                    items: safeCart.map(item => ({
                       product_id: item.id,
                       quantity: item.quantity,
                       price_at_time: item.price
                     }))
                   };
 
-                  const orderResponse = await fetch('/api/orders', {
+                  console.log('Creating simple checkout order with data:', orderData);
+
+                  if (!token) {
+                    throw new Error('Authentication token not found. Please log in again.');
+                  }
+
+                  const orderResponse = await fetch(buildApiUrl('/orders'), {
                     method: 'POST',
                     headers: { 
                       'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${localStorage.getItem('token')}`
+                      'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(orderData)
                   });
 
+                  console.log('Simple checkout order API response status:', orderResponse.status);
+
                   if (!orderResponse.ok) {
-                    throw new Error('Failed to create order');
+                    const errorData = await orderResponse.json().catch(() => ({}));
+                    console.error('Simple checkout order creation failed:', errorData);
+                    throw new Error(errorData.message || `Failed to create order. Status: ${orderResponse.status}`);
                   }
 
                   const order = await orderResponse.json();
+                  console.log('Simple checkout order created successfully:', order);
                   toast.success('Order placed successfully with simple checkout!');
                   
                   // Clear the cart after successful order
@@ -500,13 +530,16 @@ const EnhancedCheckout = () => {
             
             {/* Cart Items */}
             <div className="space-y-3 mb-4">
-              {cart.map((item) => (
+              {safeCart.map((item) => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <img
-                      src={item.image_url || '/placeholder-product.jpg'}
+                      src={item.image_url || getProductPlaceholder(item.name)}
                       alt={item.name}
                       className="w-12 h-12 object-cover rounded"
+                      onError={(e) => {
+                        e.target.src = getFallbackImage();
+                      }}
                     />
                     <div>
                       <p className="font-medium text-gray-900">{item.name}</p>

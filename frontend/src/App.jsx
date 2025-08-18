@@ -30,6 +30,7 @@ import AIRecommendations from './components/AIRecommendations';
 import AIChatbot from './components/AIChatbot';
 import Internationalization from './components/Internationalization';
 import AdminOrders from './components/AdminOrders';
+import CategoryPage from './components/CategoryPage';
 
 // Main App Component
 const AppContent = () => {
@@ -53,7 +54,7 @@ const AppContent = () => {
   };
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <main>
@@ -61,6 +62,7 @@ const AppContent = () => {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/category/:categorySlug" element={<CategoryPage />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />

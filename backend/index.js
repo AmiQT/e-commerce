@@ -84,6 +84,27 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
+// Placeholder image generator endpoint
+app.get('/api/placeholder/:width/:height/:text', (req, res) => {
+  const { width, height, text } = req.params;
+  const decodedText = decodeURIComponent(text);
+  
+  // Create a simple SVG placeholder
+  const svg = `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f3f4f6"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" 
+            text-anchor="middle" dominant-baseline="middle" fill="#6b7280">
+        ${decodedText}
+      </text>
+    </svg>
+  `;
+  
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=31536000');
+  res.send(svg);
+});
+
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
   try {
@@ -300,11 +321,21 @@ app.listen(port, async () => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS categories (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL UNIQUE,
+        name VARCHAR(100) NOT NULL,
         description TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    
+    // Add unique constraint with a different approach
+    try {
+      await pool.query(`
+        ALTER TABLE categories ADD CONSTRAINT categories_name_unique UNIQUE (name);
+      `);
+    } catch (err) {
+      // Constraint might already exist, which is fine
+      console.log('ℹ️  Categories unique constraint already exists or could not be added');
+    }
     
     // Create users table
     await pool.query(`
@@ -378,29 +409,50 @@ app.listen(port, async () => {
       );
     `);
     
-    // Insert sample data
-    await pool.query(`
-      INSERT INTO categories (name, description) VALUES 
-        ('New Arrivals', 'Latest fashion trends and new releases'),
-        ('Men', 'Men''s clothing and accessories'),
-        ('Women', 'Women''s fashion and style'),
-        ('Accessories', 'Fashion accessories and jewelry'),
-        ('Sale', 'Discounted fashion items')
-      ON CONFLICT (name) DO NOTHING;
-    `);
+    // Insert sample data - use try-catch for each insertion
+    const categoriesToInsert = [
+      { name: 'New Arrivals', description: 'Latest fashion trends and new releases' },
+      { name: 'Men', description: 'Men\'s clothing and accessories' },
+      { name: 'Women', description: 'Women\'s fashion and style' },
+      { name: 'Accessories', description: 'Fashion accessories and jewelry' },
+      { name: 'Sale', description: 'Discounted fashion items' }
+    ];
     
-    await pool.query(`
-      INSERT INTO products (name, description, price, stock, category_id, image_url) VALUES 
-        ('Classic White Sneakers', 'Versatile white sneakers perfect for any outfit', 89.99, 75, 1, 'https://via.placeholder.com/300x300?text=White+Sneakers'),
-        ('Denim Jacket', 'Timeless denim jacket with modern fit', 129.99, 45, 2, 'https://via.placeholder.com/300x300?text=Denim+Jacket'),
-        ('Floral Summer Dress', 'Beautiful floral print dress perfect for summer', 79.99, 60, 3, 'https://via.placeholder.com/300x300?text=Summer+Dress'),
-        ('Leather Crossbody Bag', 'Stylish leather bag with adjustable strap', 149.99, 35, 4, 'https://via.placeholder.com/300x300?text=Leather+Bag'),
-        ('Premium Cotton T-Shirt', 'Soft cotton t-shirt in multiple colors', 29.99, 120, 2, 'https://via.placeholder.com/300x300?text=Cotton+T-Shirt'),
-        ('Designer Sunglasses', 'Trendy sunglasses with UV protection', 199.99, 25, 4, 'https://via.placeholder.com/300x300?text=Sunglasses'),
-        ('High-Waist Jeans', 'Fashionable high-waist jeans for women', 99.99, 55, 3, 'https://via.placeholder.com/300x300?text=High+Waist+Jeans'),
-        ('Casual Blazer', 'Professional yet casual blazer for men', 179.99, 40, 2, 'https://via.placeholder.com/300x300?text=Casual+Blazer')
-      ON CONFLICT DO NOTHING;
-    `);
+    for (const category of categoriesToInsert) {
+      try {
+        await pool.query(
+          'INSERT INTO categories (name, description) VALUES ($1, $2)',
+          [category.name, category.description]
+        );
+      } catch (err) {
+        // Category might already exist, which is fine
+        console.log(`ℹ️  Category "${category.name}" already exists or could not be inserted`);
+      }
+    }
+    
+    // Insert sample products
+    const productsToInsert = [
+      { name: 'Classic White Sneakers', description: 'Versatile white sneakers perfect for any outfit', price: 89.99, stock: 75, category_id: 1, image_url: 'https://via.placeholder.com/300x300?text=White+Sneakers' },
+      { name: 'Denim Jacket', description: 'Timeless denim jacket with modern fit', price: 129.99, stock: 45, category_id: 2, image_url: 'https://via.placeholder.com/300x300?text=Denim+Jacket' },
+      { name: 'Floral Summer Dress', description: 'Beautiful floral print dress perfect for summer', price: 79.99, stock: 60, category_id: 3, image_url: 'https://via.placeholder.com/300x300?text=Summer+Dress' },
+      { name: 'Leather Crossbody Bag', description: 'Stylish leather bag with adjustable strap', price: 149.99, stock: 35, category_id: 4, image_url: 'https://via.placeholder.com/300x300?text=Leather+Bag' },
+      { name: 'Premium Cotton T-Shirt', description: 'Soft cotton t-shirt in multiple colors', price: 29.99, stock: 120, category_id: 2, image_url: 'https://via.placeholder.com/300x300?text=Cotton+T-Shirt' },
+      { name: 'Designer Sunglasses', description: 'Trendy sunglasses with UV protection', price: 199.99, stock: 25, category_id: 4, image_url: 'https://via.placeholder.com/300x300?text=Sunglasses' },
+      { name: 'High-Waist Jeans', description: 'Fashionable high-waist jeans for women', price: 99.99, stock: 55, category_id: 3, image_url: 'https://via.placeholder.com/300x300?text=High+Waist+Jeans' },
+      { name: 'Casual Blazer', description: 'Professional yet casual blazer for men', price: 179.99, stock: 40, category_id: 2, image_url: 'https://via.placeholder.com/300x300?text=Casual+Blazer' }
+    ];
+    
+    for (const product of productsToInsert) {
+      try {
+        await pool.query(
+          'INSERT INTO products (name, description, price, stock, category_id, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
+          [product.name, product.description, product.price, product.stock, product.category_id, product.image_url]
+        );
+      } catch (err) {
+        // Product might already exist, which is fine
+        console.log(`ℹ️  Product "${product.name}" already exists or could not be inserted`);
+      }
+    }
     
     console.log('✅ Database tables initialized successfully!');
     console.log('🎉 Sample products and categories added!');

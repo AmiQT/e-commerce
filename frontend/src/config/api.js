@@ -1,9 +1,19 @@
 // API Configuration
 const API_CONFIG = {
   // Base URL - change this based on environment
-  BASE_URL: process.env.NODE_ENV === 'production' 
-    ? (process.env.VITE_API_URL || '/api')
-    : '/api',
+  BASE_URL: (() => {
+    // Check if we're on Vercel and have a custom API URL
+    if (process.env.NODE_ENV === 'production') {
+      // If VITE_API_URL is set, use it (for separate backend)
+      if (process.env.VITE_API_URL && process.env.VITE_API_URL !== '/api') {
+        return process.env.VITE_API_URL;
+      }
+      // Otherwise, use relative /api (for Vercel Functions)
+      return '/api';
+    }
+    // Development: use local backend
+    return 'http://localhost:3001/api';
+  })(),
   
   // API Endpoints
   ENDPOINTS: {

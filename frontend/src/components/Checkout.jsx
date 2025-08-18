@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useUser } from '../context/UserContext';
-import axios from 'axios';
+import { buildApiUrl } from '../config/api';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const Checkout = () => {
   const { cart, clearCart } = useCart();
   const { user, token } = useUser();
   const navigate = useNavigate();
+
+  // Ensure cart is always an array
+  const safeCart = Array.isArray(cart) ? cart : [];
 
   const [formData, setFormData] = useState({
     address: '',
@@ -43,7 +47,7 @@ const Checkout = () => {
     try {
       const response = await axios.post('/api/discounts/validate', {
         code: discountCode,
-        orderAmount: cart.reduce((total, item) => total + (item.price * item.quantity), 0)
+        orderAmount: safeCart.reduce((total, item) => total + (item.price * item.quantity), 0)
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -75,7 +79,7 @@ const Checkout = () => {
   };
 
   const calculateTotal = () => {
-    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const subtotal = safeCart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const shipping = 0; // Free shipping
     const total = subtotal + shipping - discountAmount;
     return total;
@@ -99,7 +103,7 @@ const Checkout = () => {
       return;
     }
 
-    if (cart.length === 0) {
+    if (safeCart.length === 0) {
       toast.error('Your cart is empty. Please add items before checking out.');
       navigate('/cart');
       return;
@@ -112,18 +116,23 @@ const Checkout = () => {
         user_id: user.id,
         total_amount: calculateTotal(),
         shipping_address: `${formData.address}, ${formData.city}, ${formData.postalCode}, ${formData.country}`,
-        items: cart.map((item) => ({
+        items: safeCart.map((item) => ({
           product_id: item.id,
           quantity: item.quantity,
           price_at_time: item.price,
         })),
       };
 
-      const response = await axios.post('/api/orders', orderData, {
+      console.log('Creating order with data:', orderData);
+      console.log('Using token:', token ? 'Token exists' : 'No token');
+
+      const response = await axios.post(buildApiUrl('/orders'), orderData, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      console.log('Order created successfully:', response.data);
 
       if (response.status === 201) {
         toast.success('Order placed successfully!');
@@ -145,14 +154,14 @@ const Checkout = () => {
       return;
     }
 
-    if (cart.length === 0) {
+    if (safeCart.length === 0) {
       toast.warn('Your cart is empty. Redirecting to cart.');
       navigate('/cart');
       return;
     }
-  }, [user, cart.length, navigate]);
+  }, [user, safeCart.length, navigate]);
 
-  if (!user || cart.length === 0) {
+  if (!user || safeCart.length === 0) {
     return (
       <div className="min-h-screen bg-[#fcf8f8] flex items-center justify-center">
         <div className="text-center">
@@ -164,13 +173,16 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcf8f8] py-8">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-[#1b0e0e] mb-8 text-center">Checkout</h1>
+    <div className="min-h-screen bg-[#fcf8f8] py-4 sm:py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1b0e0e] mb-6 sm:mb-8 text-center">Checkout</h1>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-[#f3e7e8] p-8">
-          <h2 className="text-2xl font-semibold text-[#1b0e0e] mb-6">Shipping Information</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Shipping Information */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-lg border border-[#f3e7e8] p-4 sm:p-6 lg:p-8">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#1b0e0e] mb-4 sm:mb-6">Shipping Information</h2>
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-[#1b0e0e] mb-2">Address</label>
               <input
@@ -179,7 +191,7 @@ const Checkout = () => {
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border ${validationErrors.address ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
+                className={`w-full px-3 sm:px-4 py-3 text-base border ${validationErrors.address ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
                 placeholder="123 Main St"
               />
               {validationErrors.address && <p className="mt-1 text-sm text-red-500">{validationErrors.address}</p>}
@@ -192,12 +204,12 @@ const Checkout = () => {
                 name="city"
                 value={formData.city}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border ${validationErrors.city ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
+                className={`w-full px-3 sm:px-4 py-3 text-base border ${validationErrors.city ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
                 placeholder="Anytown"
               />
               {validationErrors.city && <p className="mt-1 text-sm text-red-500">{validationErrors.city}</p>}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label htmlFor="postalCode" className="block text-sm font-medium text-[#1b0e0e] mb-2">Postal Code</label>
                 <input
@@ -206,7 +218,7 @@ const Checkout = () => {
                   name="postalCode"
                   value={formData.postalCode}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border ${validationErrors.postalCode ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
+                  className={`w-full px-3 sm:px-4 py-3 text-base border ${validationErrors.postalCode ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
                   placeholder="12345"
                 />
                 {validationErrors.postalCode && <p className="mt-1 text-sm text-red-500">{validationErrors.postalCode}</p>}
@@ -219,17 +231,17 @@ const Checkout = () => {
                   name="country"
                   value={formData.country}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border ${validationErrors.country ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
+                  className={`w-full px-3 sm:px-4 py-3 text-base border ${validationErrors.country ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
                   placeholder="USA"
                 />
                 {validationErrors.country && <p className="mt-1 text-sm text-red-500">{validationErrors.country}</p>}
               </div>
             </div>
 
-            {/* Discount Code Section */}
-            <div className="border-t border-[#f3e7e8] pt-6 mt-6">
-              <h2 className="text-2xl font-semibold text-[#1b0e0e] mb-4">Discount Code</h2>
-              <div className="flex gap-4 items-end">
+                {/* Discount Code Section */}
+                <div className="border-t border-[#f3e7e8] pt-4 sm:pt-6 mt-4 sm:mt-6">
+                  <h2 className="text-lg sm:text-xl font-semibold text-[#1b0e0e] mb-3 sm:mb-4">Discount Code</h2>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-end">
                 <div className="flex-1">
                   <label htmlFor="discountCode" className="block text-sm font-medium text-[#1b0e0e] mb-2">Enter discount code</label>
                   <input
@@ -238,7 +250,7 @@ const Checkout = () => {
                     name="discountCode"
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value)}
-                    className={`w-full px-4 py-3 border ${discountError ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
+                    className={`w-full px-3 sm:px-4 py-3 text-base border ${discountError ? 'border-red-500' : 'border-[#f3e7e8]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ea2a33] focus:border-transparent`}
                     placeholder="Enter discount code"
                     disabled={discountApplied}
                   />
@@ -272,37 +284,65 @@ const Checkout = () => {
               )}
             </div>
 
-            {/* Order Summary */}
-            <div className="border-t border-[#f3e7e8] pt-6 mt-6">
-              <h2 className="text-2xl font-semibold text-[#1b0e0e] mb-4">Order Summary</h2>
-              <div className="flex justify-between text-lg font-medium text-[#1b0e0e] mb-2">
-                <span>Subtotal:</span>
-                <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span>
+                <button
+                  type="submit"
+                  disabled={loading || safeCart.length === 0}
+                  className="w-full bg-[#ea2a33] text-white py-3 sm:py-4 rounded-lg hover:bg-[#d4252e] transition-colors font-semibold text-base sm:text-lg disabled:bg-[#f3e7e8] disabled:text-[#994d51] disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Placing Order...' : 'Place Order'}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-lg border border-[#f3e7e8] p-4 sm:p-6 sticky top-4">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#1b0e0e] mb-4 sm:mb-6">Order Summary</h2>
+              
+              {/* Cart Items */}
+              <div className="space-y-3 mb-6">
+                {safeCart.map((item) => (
+                  <div key={item.id} className="flex items-center space-x-3">
+                    <img
+                      src={item.image_url || '/placeholder-product.jpg'}
+                      alt={item.name}
+                      className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-medium text-[#1b0e0e] truncate">{item.name}</h4>
+                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                    </div>
+                    <span className="text-sm font-medium text-[#1b0e0e]">${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
               </div>
-              <div className="flex justify-between text-lg font-medium text-[#1b0e0e] mb-4">
-                <span>Shipping:</span>
-                <span>Free</span>
-              </div>
-              {discountApplied && (
-                <div className="flex justify-between text-lg font-medium text-[#1b0e0e] mb-4">
-                  <span>Discount:</span>
-                  <span>-${discountAmount.toFixed(2)}</span>
+
+              {/* Summary Totals */}
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm sm:text-base">
+                  <span className="text-gray-600">Subtotal ({safeCart.length} items)</span>
+                  <span className="font-medium">${safeCart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span>
                 </div>
-              )}
-              <div className="flex justify-between text-2xl font-bold text-[#1b0e0e]">
-                <span>Total:</span>
-                <span className="text-[#ea2a33]">${calculateTotal().toFixed(2)}</span>
+                <div className="flex justify-between text-sm sm:text-base">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="text-green-600 font-medium">Free</span>
+                </div>
+                {discountApplied && (
+                  <div className="flex justify-between text-sm sm:text-base">
+                    <span className="text-gray-600">Discount</span>
+                    <span className="text-green-600 font-medium">-${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex justify-between text-lg sm:text-xl font-bold text-[#1b0e0e]">
+                    <span>Total</span>
+                    <span className="text-[#ea2a33]">${calculateTotal().toFixed(2)}</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading || cart.length === 0}
-              className="w-full bg-[#ea2a33] text-white py-4 rounded-lg hover:bg-[#d4252e] transition-colors font-medium text-lg disabled:bg-[#f3e7e8] disabled:text-[#994d51] disabled:cursor-not-allowed"
-            >
-              {loading ? 'Placing Order...' : 'Place Order'}
-            </button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
