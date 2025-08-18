@@ -314,14 +314,14 @@ const Navbar = () => {
                       className="block py-3 px-4 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                       onClick={closeMobileMenu}
                     >
-                      Login
-                    </Link>
+                    Login
+                  </Link>
                     <Link 
                       to="/register" 
                       className="block py-3 px-4 text-base font-medium bg-[#ea2a33] text-white rounded-lg py-3 px-4 text-center"
                       onClick={closeMobileMenu}
                     >
-                      Sign Up
+                    Sign Up
                     </Link>
                   </>
                 )}
@@ -351,8 +351,8 @@ const Navbar = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
                   Cart ({cartItemCount})
-                </Link>
-              </div>
+                  </Link>
+                </div>
             </div>
           </div>
         </div>
