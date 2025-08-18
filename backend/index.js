@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
 });
 
 // Test route to verify proxy is working
-app.get('/api/test', (req, res) => {
+app.get('/test', (req, res) => {
   res.json({ 
     message: 'Backend is working!', 
     timestamp: new Date().toISOString(),
@@ -76,7 +76,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // Test route to verify database connection
-app.get('/api/db-test', async (req, res) => {
+app.get('/db-test', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
     res.status(200).json({ message: 'Database connected successfully!', time: result.rows[0].now });
@@ -283,23 +283,23 @@ app.get('/api/routes-test', (req, res) => {
 });
 
 // Use route modules
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/products/recommendations', recommendationsRoutes);
-app.use('/api/discounts', discountRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/analytics/advanced', advancedAnalyticsRoutes);
-app.use('/api/b2b', b2bRoutes);
-app.use('/api/performance', performanceRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
+app.use('/cart', cartRoutes);
+app.use('/wishlist', wishlistRoutes);
+app.use('/orders', orderRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/admin', adminRoutes);
+app.use('/reviews', reviewRoutes);
+app.use('/analytics', analyticsRoutes);
+app.use('/products/recommendations', recommendationsRoutes);
+app.use('/discounts', discountRoutes);
+app.use('/users', userRoutes);
+app.use('/analytics/advanced', advancedAnalyticsRoutes);
+app.use('/b2b', b2bRoutes);
+app.use('/performance', performanceRoutes);
+app.use('/ai', aiRoutes);
+app.use('/payments', paymentRoutes);
 
 // Centralized Error Handling Middleware
 app.use((err, req, res, next) => {
