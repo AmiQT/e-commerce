@@ -41,7 +41,9 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://your-frontend-domain.com', // Update this with your actual frontend domain
+    'https://e-commerce-coral-five-81.vercel.app',
+    'https://e-commerce-noor-azamis-projects.vercel.app',
+    'https://e-commerce-git-main-noor-azamis-projects.vercel.app',
     'https://amiqt.github.io' // GitHub Pages domain
   ];
   
