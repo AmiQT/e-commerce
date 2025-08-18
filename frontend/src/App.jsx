@@ -73,7 +73,6 @@ const AppContent = () => {
             <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AnalyticsDashboard /></ProtectedRoute>} />
             <Route path="/admin/orders" element={<ProtectedRoute requireAdmin><AdminOrders /></ProtectedRoute>} />
-            <Route path="/enhanced-checkout" element={<ProtectedRoute><EnhancedCheckout /></ProtectedRoute>} />
             <Route path="/preferences" element={<ProtectedRoute><UserPreferences /></ProtectedRoute>} />
             <Route path="/admin/advanced-analytics" element={<ProtectedRoute requireAdmin><AdvancedAnalytics /></ProtectedRoute>} />
             <Route path="/admin/b2b-portal" element={<ProtectedRoute requireAdmin><B2BPortal /></ProtectedRoute>} />

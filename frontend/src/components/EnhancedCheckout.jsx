@@ -151,10 +151,7 @@ const EnhancedCheckout = () => {
     return { id: 'paypal_payment_' + Date.now() };
   };
 
-  const processSimpleCheckout = async () => {
-    // Simple checkout without payment processing (for testing)
-    return { id: 'simple_checkout_' + Date.now() };
-  };
+
 
   const onSubmit = async (formData) => {
     setIsLoading(true);
@@ -457,69 +454,7 @@ const EnhancedCheckout = () => {
               {isLoading ? 'Processing...' : `Pay $${getTotal().toFixed(2)}`}
             </button>
 
-            {/* Simple Checkout Button (for testing) */}
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  setIsLoading(true);
-                  const paymentResult = await processSimpleCheckout();
-                  
-                  // Create order with simple checkout
-                  const orderData = {
-                    total_amount: getTotal(),
-                    shipping_address: 'Test Address',
-                    items: safeCart.map(item => ({
-                      product_id: item.id,
-                      quantity: item.quantity,
-                      price_at_time: item.price
-                    }))
-                  };
 
-                  console.log('Creating simple checkout order with data:', orderData);
-
-                  if (!token) {
-                    throw new Error('Authentication token not found. Please log in again.');
-                  }
-
-                  const orderResponse = await fetch(buildApiUrl('/orders'), {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(orderData)
-                  });
-
-                  console.log('Simple checkout order API response status:', orderResponse.status);
-
-                  if (!orderResponse.ok) {
-                    const errorData = await orderResponse.json().catch(() => ({}));
-                    console.error('Simple checkout order creation failed:', errorData);
-                    throw new Error(errorData.message || `Failed to create order. Status: ${orderResponse.status}`);
-                  }
-
-                  const order = await orderResponse.json();
-                  console.log('Simple checkout order created successfully:', order);
-                  toast.success('Order placed successfully with simple checkout!');
-                  
-                  // Clear the cart after successful order
-                  clearCart();
-                  
-                  // Navigate to orders page
-                  navigate('/orders');
-                } catch (error) {
-                  console.error('Simple checkout error:', error);
-                  toast.error(error.message || 'Simple checkout failed. Please try again.');
-                } finally {
-                  setIsLoading(false);
-                }
-              }}
-              disabled={isLoading}
-              className="w-full mt-3 bg-green-600 text-white py-3 px-6 rounded-md text-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Processing...' : 'Simple Checkout (Test)'}
-            </button>
           </form>
         </div>
 
